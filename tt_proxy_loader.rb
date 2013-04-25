@@ -5,6 +5,9 @@
 #
 #-------------------------------------------------------------------------------
 
+#$LOAD_PATH << 'C:/Users/thm.ARC.000/Dropbox/SketchUp/Plugins/ThomThom/TT Library 2'
+#require 'TT_Lib2/core.rb'
+
 # Ensure the TT::Plugins namespace exists - as this is where my plugins are
 # located.
 module TT; end;
@@ -14,7 +17,7 @@ module TT::Plugins; end;
 #       remove its dependancy.
 module TT::Plugins::ProxyLoader
   
-  VERSION = '0.7.1'.freeze # Beta
+  VERSION = '0.8.0'.freeze # Beta
   
   # Time the loading.
   time_start = Time.now
@@ -49,6 +52,14 @@ module TT::Plugins::ProxyLoader
         # Ensure the item really is a folder/directory.
         path = File.join( location, folder )
         next unless FileTest.directory?( path )
+        # Add support for deeper folder hierarchy. Check for /src folders.
+        #TT.debug "Path: #{path}"
+        src_path = File.join( path, 'src' )
+        #TT.debug "src: #{src_path}"
+        if File.exist?( src_path ) && FileTest.directory?( src_path )
+          #TT.debug "> Exists!"
+          path = src_path
+        end
         # Add the path to the load path so it's content can be loaded by
         # relative path as if it was located in the original plugins folder.
         unless $LOAD_PATH.include?( path )
@@ -61,7 +72,7 @@ module TT::Plugins::ProxyLoader
   
   # Load TT_Lib2
   # (i) This assumes that TT_Lib2 is located in one of the locations in the
-  #     $LOAD_PATH. It's requirement is entirely for debuggin purposes.
+  #     $LOAD_PATH. It's requirement is entirely for debugging purposes.
   #
   #     To remove it's dependancy, comment out the references to TT.debug and
   #     TT.defer.
